@@ -1,0 +1,116 @@
+*&---------------------------------------------------------------------*
+*& Report ZSS_TEST_SANKET
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zss_test_sanket.
+
+
+TABLES: ekko.
+TYPES:
+  BEGIN OF ty_ekko,
+    ebeln TYPE ekko-ebeln,
+    aedat TYPE ekko-aedat,
+  END OF ty_ekko.
+
+DATA:
+  wa_ekko   TYPE ty_ekko,
+  it_ekko   TYPE TABLE OF ty_ekko,
+  lw_ekpo   TYPE zss_test_sanket,
+  lt_ekpo   TYPE TABLE OF zss_test_sanket,
+  wa_ekpo   TYPE zss_test_sanket,
+  it_ekpo   TYPE TABLE OF zss_test_sanket,
+  date_low  TYPE sy-datum,
+  date_high TYPE sy-datum.
+
+INITIALIZATION.
+  SELECT-OPTIONS: s_date FOR ekko-aedat.
+
+START-OF-SELECTION.
+  PERFORM get_po_details.
+  PERFORM call_smart_form.
+
+*&---------------------------------------------------------------------*
+*&      Form  GET_PO_DETAILS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM get_po_details .
+
+  SELECT ebeln aedat
+    FROM ekko INTO TABLE it_ekko
+    WHERE aedat IN s_date.
+
+  IF sy-subrc = 0.
+    date_low = s_date-low.
+    date_high = s_date-high.
+
+    SORT it_ekko BY aedat.
+    SELECT ebeln ebelp txz01
+           matnr
+*      menge
+      meins
+      FROM ekpo INTO TABLE lt_ekpo
+      FOR ALL ENTRIES IN it_ekko
+      WHERE ebeln = it_ekko-ebeln
+        AND menge NE 0.
+
+    IF sy-subrc = 0.
+
+      LOOP AT lt_ekpo INTO lw_ekpo.
+        AT NEW ebeln.
+          wa_ekpo-ebeln = lw_ekpo-ebeln.
+        ENDAT.
+
+        wa_ekpo-ebelp = lw_ekpo-ebelp.
+        wa_ekpo-txz01 = lw_ekpo-txz01.
+*        wa_ekpo-menge = lw_ekpo-menge.
+        wa_ekpo-meins = lw_ekpo-meins.
+
+        IF lw_ekpo-matnr IS NOT INITIAL.
+          wa_ekpo-matnr = lw_ekpo-matnr.
+        ELSE.
+          wa_ekpo-matnr = '<Service PO>'.
+        ENDIF.
+        APPEND wa_ekpo TO it_ekpo.
+        CLEAR: wa_ekpo, lw_ekpo.
+      ENDLOOP.
+    ENDIF.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Form  CALL_SMART_FORM
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM call_smart_form .
+
+  DATA: lv_form_name TYPE rs38l_fnam.
+
+  IF it_ekpo IS NOT INITIAL.
+    CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+      EXPORTING
+        formname           = 'ZPURCHASING_DOCUMENT_HEADER'
+      IMPORTING
+        fm_name            = lv_form_name
+      EXCEPTIONS
+        no_form            = 1
+        no_function_module = 2
+        OTHERS             = 3.
+
+    CALL FUNCTION lv_form_name
+      EXPORTING
+        date_low         = date_low
+        date_high        = date_high
+      TABLES
+        it_ekpo          = it_ekpo
+      EXCEPTIONS
+        formatting_error = 1
+        internal_error   = 2
+        send_error       = 3
+        user_canceled    = 4
+        OTHERS           = 5.
+  ENDIF.
+
+ENDFORM.
