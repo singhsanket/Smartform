@@ -1,5 +1,5 @@
 📄 Program Name
-ZSR_TEST_VIKAS
+ZSS_TEST_SANKET
 An ABAP Report that generates a Smart Form output of Purchase Order (PO) details from SAP standard tables.
 -----------------------------------------------------------------------------------------------------------------------------------------
 🧾 Overview
@@ -11,14 +11,14 @@ based on a user-specified posting date range and passes the data to the Smart Fo
 # SAP ABAP Smart Form Project - Purchase Order Report
 
 ## 📄 Program Name
-`ZSR_TEST_VIKAS`
+`ZSS_TEST_SANKET`
 
 ## 📚 Description
 This report fetches purchase order data (`EKKO`, `EKPO`) based on a date range and outputs the data using a Smart Form (`ZPURCHASING_DOCUMENT_HEADER`).
 
 ## 🧩 Components
 - **Tables Used**: `EKKO`, `EKPO`
-- **Custom Structure**: `ZSR_TEST_VIKAS` (should be defined in Data Dictionary)
+- **Custom Structure**: `ZSS_TEST_SANKET` (should be defined in Data Dictionary)
 - **Smart Form**: `ZPURCHASING_DOCUMENT_HEADER`
 
 ## 🚀 How It Works
@@ -28,7 +28,7 @@ This report fetches purchase order data (`EKKO`, `EKPO`) based on a date range a
 4. Smart Form prints the details.
 
 ## 📦 How to Use
-1. Import the program `zsr_test_vikas.abap` in your SAP system.
+1. Import the program `zss_test_sanket.abap` in your SAP system.
 2. Ensure Smart Form `ZPURCHASING_DOCUMENT_HEADER` is available in the system.
 3. Execute the program with appropriate date range.
 
